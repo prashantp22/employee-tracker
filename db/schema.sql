@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS departmemt;
+
+
+CREATE TABLE departmemt (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    name_ VARCHAR(30)
+);

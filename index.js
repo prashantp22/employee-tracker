@@ -24,7 +24,8 @@ const data = await inquirer
         'View All Employees',
         'Add Department',
         'Add Role',
-        'Add Employee'
+        'Add Employee',
+        'Update Employee'
       ]
   }]);
   if (data.menu === 'View All Department') {
@@ -39,6 +40,8 @@ const data = await inquirer
       departmentchoices();
   }else if (data.menu === 'Add Employee'){
         roleChoices();
+  }else if (data.menu === 'Update Employee') {
+      managers();
   } 
 };
 
@@ -150,6 +153,27 @@ function managerChoices(rolearr) {
 
 }
 
+function roles(managers){
+    const sql = `SELECT title AS name, id AS value FROM role`;
+    db.query(sql, (err,res) => {
+        if (err) {
+            console.log(err)
+        }
+        updateEmployee(managers, res);
+    })
+}
+
+function managers() {
+    const sql = `SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS name, id AS value FROM employee`
+    db.query(sql, (err,res) => {
+        if(err){
+            console.log(err);
+        }
+         roles(res);
+    })
+
+}
+
 
 function addRole(arr){
     inquirer.prompt([
@@ -232,6 +256,33 @@ function addEmployee(rolearr, managerarr){
             startApp();
         });
     });
+}
+
+function updateEmployee(managers,role){
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employeeName',
+            message: "Which Employee do you ant to update?",
+            choices: managers
+        },
+        {
+            type: 'list',
+            name: 'newRole',
+            message: "What is the new role of the employee?",
+            choices: role
+        }
+    ])
+    .then((answer) => {
+        const sql = `UPDATE employee SET employee.role_id = ? WHERE id = ?`
+        const params = [answer.newRole, answer.employeeName]
+        db.query(sql, params, (err,res) => {
+            if (err) throw(err);
+
+            console.table(res);
+            startApp();
+            })
+        })
 }
 
 
